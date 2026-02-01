@@ -66,7 +66,7 @@ void Sensor::publish_state(float state) {
   this->raw_state = state;
   this->raw_callback_.call(state);
 
-  ESP_LOGV(TAG, "'%s': Received new state %f", this->name_.c_str(), state);
+  ESP_LOGV(TAG, "'%s': Received new state %s%d.%02d", this->name_.c_str(), DECIMAL_2(state));
 
   if (this->filter_list_ == nullptr) {
     this->internal_send_state_to_frontend(state);

@@ -169,14 +169,14 @@ uint8_t OtaHttpRequestComponent::do_ota_() {
     if ((now - last_progress > 1000) or (container->get_bytes_read() == container->content_length)) {
       last_progress = now;
       float percentage = container->get_bytes_read() * 100.0f / container->content_length;
-      ESP_LOGD(TAG, "Progress: %0.1f%%", percentage);
+      ESP_LOGD(TAG, "Progress: %s%d.%d%%", DECIMAL_1(percentage));
 #ifdef USE_OTA_STATE_LISTENER
       this->notify_state_(ota::OTA_IN_PROGRESS, percentage, 0);
 #endif
     }
   }  // while
 
-  ESP_LOGI(TAG, "Done in %.0f seconds", float(millis() - update_start_time) / 1000);
+  ESP_LOGI(TAG, "Done in %d seconds", (int) (float(millis() - update_start_time) / 1000));
 
   // verify MD5 is as expected and act accordingly
   md5_receive.calculate();

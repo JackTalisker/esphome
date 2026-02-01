@@ -84,7 +84,7 @@ void OTARequestHandler::report_ota_progress_(AsyncWebServerRequest *request) {
       // access to the actual firmware size until the upload is complete. This is intentional
       // as it still gives the user a reasonable progress indication.
       percentage = (this->ota_read_length_ * 100.0f) / request->contentLength();
-      ESP_LOGD(TAG, "OTA in progress: %0.1f%%", percentage);
+      ESP_LOGD(TAG, "OTA in progress: %s%d.%d%%", DECIMAL_1(percentage));
     } else {
       ESP_LOGD(TAG, "OTA in progress: %" PRIu32 " bytes read", this->ota_read_length_);
     }

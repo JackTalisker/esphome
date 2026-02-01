@@ -331,7 +331,7 @@ void ESPHomeOTAComponent::handle_data_() {
     if (now - last_progress > 1000) {
       last_progress = now;
       float percentage = (total * 100.0f) / ota_size;
-      ESP_LOGD(TAG, "Progress: %0.1f%%", percentage);
+      ESP_LOGD(TAG, "Progress: %s%d.%d%%", DECIMAL_1(percentage));
 #ifdef USE_OTA_STATE_LISTENER
       this->notify_state_(ota::OTA_IN_PROGRESS, percentage, 0);
 #endif
