@@ -105,7 +105,7 @@ void CoverCall::validate_() {
       ESP_LOGW(TAG, "'%s': position unsupported", name);
       this->position_.reset();
     } else if (pos < 0.0f || pos > 1.0f) {
-      ESP_LOGW(TAG, "'%s': position %.2f out of range", name, pos);
+      ESP_LOGW(TAG, "'%s': position %s%d.%02d out of range", name, DECIMAL_2(pos));
       this->position_ = clamp(pos, 0.0f, 1.0f);
     }
   }
@@ -115,7 +115,7 @@ void CoverCall::validate_() {
       ESP_LOGW(TAG, "'%s': tilt unsupported", name);
       this->tilt_.reset();
     } else if (tilt < 0.0f || tilt > 1.0f) {
-      ESP_LOGW(TAG, "'%s': tilt %.2f out of range", name, tilt);
+      ESP_LOGW(TAG, "'%s': tilt %s%d.%02d out of range", name, DECIMAL_2(tilt));
       this->tilt_ = clamp(tilt, 0.0f, 1.0f);
     }
   }

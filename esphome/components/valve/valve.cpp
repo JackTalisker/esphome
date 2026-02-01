@@ -96,7 +96,8 @@ void ValveCall::validate_() {
       ESP_LOGW(TAG, "'%s' - This valve device does not support setting position!", this->parent_->get_name().c_str());
       this->position_.reset();
     } else if (pos < 0.0f || pos > 1.0f) {
-      ESP_LOGW(TAG, "'%s' - Position %.2f is out of range [0.0 - 1.0]", this->parent_->get_name().c_str(), pos);
+      ESP_LOGW(TAG, "'%s' - Position %s%d.%02d is out of range [0.0 - 1.0]", this->parent_->get_name().c_str(),
+               DECIMAL_2(pos));
       this->position_ = clamp(pos, 0.0f, 1.0f);
     }
   }

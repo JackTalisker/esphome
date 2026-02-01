@@ -115,8 +115,20 @@ float Sensor::get_raw_state() const { return this->raw_state; }
 void Sensor::internal_send_state_to_frontend(float state) {
   this->set_has_state(true);
   this->state = state;
-  ESP_LOGD(TAG, "'%s' >> %.*f %s", this->get_name().c_str(), std::max(0, (int) this->get_accuracy_decimals()), state,
-           this->get_unit_of_measurement_ref().c_str());
+  // Use integer formatting to avoid pulling in _dtoa_r (~3.4KB)
+  // Format based on accuracy_decimals: 0 = integer, 1 = 1 decimal, 2+ = 2 decimals
+  int decimals = std::max(0, (int) this->get_accuracy_decimals());
+  if (decimals == 0) {
+    ESP_LOGD(TAG, "'%s' >> %d %s", this->get_name().c_str(), (int) state, this->get_unit_of_measurement_ref().c_str());
+  } else if (decimals == 1) {
+    int scaled = static_cast<int>(state * 10.0f);
+    ESP_LOGD(TAG, "'%s' >> %s%d.%d %s", this->get_name().c_str(), scaled < 0 ? "-" : "", std::abs(scaled / 10),
+             std::abs(scaled % 10), this->get_unit_of_measurement_ref().c_str());
+  } else {
+    int scaled = static_cast<int>(state * 100.0f);
+    ESP_LOGD(TAG, "'%s' >> %s%d.%02d %s", this->get_name().c_str(), scaled < 0 ? "-" : "", std::abs(scaled / 100),
+             std::abs(scaled % 100), this->get_unit_of_measurement_ref().c_str());
+  }
   this->callback_.call(state);
 #if defined(USE_SENSOR) && defined(USE_CONTROLLER_REGISTRY)
   ControllerRegistry::notify_sensor_update(this);

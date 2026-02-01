@@ -75,13 +75,13 @@ void ClimateCall::perform() {
     ESP_LOGD(TAG, "  Swing: %s", LOG_STR_ARG(swing_mode_s));
   }
   if (this->target_temperature_.has_value()) {
-    ESP_LOGD(TAG, "  Target Temperature: %s%d.%d", DECIMAL_1(*this->target_temperature_));
+    ESP_LOGD(TAG, "  Target Temperature: %s%d.%02d", DECIMAL_2(*this->target_temperature_));
   }
   if (this->target_temperature_low_.has_value()) {
-    ESP_LOGD(TAG, "  Target Temperature Low: %s%d.%d", DECIMAL_1(*this->target_temperature_low_));
+    ESP_LOGD(TAG, "  Target Temperature Low: %s%d.%02d", DECIMAL_2(*this->target_temperature_low_));
   }
   if (this->target_temperature_high_.has_value()) {
-    ESP_LOGD(TAG, "  Target Temperature High: %s%d.%d", DECIMAL_1(*this->target_temperature_high_));
+    ESP_LOGD(TAG, "  Target Temperature High: %s%d.%02d", DECIMAL_2(*this->target_temperature_high_));
   }
   if (this->target_humidity_.has_value()) {
     ESP_LOGD(TAG, "  Target Humidity: %d%%", (int) *this->target_humidity_);
@@ -161,7 +161,8 @@ void ClimateCall::validate_() {
     float low = *this->target_temperature_low_;
     float high = *this->target_temperature_high_;
     if (low > high) {
-      ESP_LOGW(TAG, "  Target temperature low %s%d.%d must be less than high %s%d.%d", DECIMAL_1(low), DECIMAL_1(high));
+      ESP_LOGW(TAG, "  Target temperature low %s%d.%02d must be less than high %s%d.%02d", DECIMAL_2(low),
+               DECIMAL_2(high));
       this->target_temperature_low_.reset();
       this->target_temperature_high_.reset();
     }
@@ -458,14 +459,14 @@ void Climate::publish_state() {
     ESP_LOGD(TAG, "  Swing Mode: %s", LOG_STR_ARG(climate_swing_mode_to_string(this->swing_mode)));
   }
   if (traits.has_feature_flags(climate::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE)) {
-    ESP_LOGD(TAG, "  Current Temperature: %s%d.%d°C", DECIMAL_1(this->current_temperature));
+    ESP_LOGD(TAG, "  Current Temperature: %s%d.%02d°C", DECIMAL_2(this->current_temperature));
   }
   if (traits.has_feature_flags(CLIMATE_SUPPORTS_TWO_POINT_TARGET_TEMPERATURE |
                                CLIMATE_REQUIRES_TWO_POINT_TARGET_TEMPERATURE)) {
-    ESP_LOGD(TAG, "  Target Temperature: Low: %s%d.%d°C High: %s%d.%d°C", DECIMAL_1(this->target_temperature_low),
-             DECIMAL_1(this->target_temperature_high));
+    ESP_LOGD(TAG, "  Target Temperature: Low: %s%d.%02d°C High: %s%d.%02d°C", DECIMAL_2(this->target_temperature_low),
+             DECIMAL_2(this->target_temperature_high));
   } else {
-    ESP_LOGD(TAG, "  Target Temperature: %s%d.%d°C", DECIMAL_1(this->target_temperature));
+    ESP_LOGD(TAG, "  Target Temperature: %s%d.%02d°C", DECIMAL_2(this->target_temperature));
   }
   if (traits.has_feature_flags(climate::CLIMATE_SUPPORTS_CURRENT_HUMIDITY)) {
     ESP_LOGD(TAG, "  Current Humidity: %d%%", (int) this->current_humidity);
