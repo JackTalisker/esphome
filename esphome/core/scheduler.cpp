@@ -296,14 +296,14 @@ void HOT Scheduler::set_retry_common_(Component *component, NameType name_type, 
 #ifdef ESPHOME_LOG_HAS_VERY_VERBOSE
   {
     SchedulerNameLog name_log;
-    ESP_LOGVV(TAG, "set_retry(name='%s', initial_wait_time=%" PRIu32 ", max_attempts=%u, backoff_factor=%0.1f)",
+    ESP_LOGVV(TAG, "set_retry(name='%s', initial_wait_time=%" PRIu32 ", max_attempts=%u, backoff_factor=%s%d.%d)",
               name_log.format(name_type, static_name, hash_or_id), initial_wait_time, max_attempts,
-              backoff_increase_factor);
+              DECIMAL_1(backoff_increase_factor));
   }
 #endif
 
   if (backoff_increase_factor < 0.0001) {
-    ESP_LOGE(TAG, "set_retry: backoff_factor %0.1f too small, using 1.0: %s", backoff_increase_factor,
+    ESP_LOGE(TAG, "set_retry: backoff_factor %s%d.%d too small, using 1.0: %s", DECIMAL_1(backoff_increase_factor),
              (name_type == NameType::STATIC_STRING && static_name) ? static_name : "");
     backoff_increase_factor = 1;
   }
