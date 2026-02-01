@@ -478,6 +478,44 @@ static inline void normalize_accuracy_decimals(float &value, int8_t &accuracy_de
   }
 }
 
+// Power of 10 lookup table for accuracy_decimals 0-9
+static const uint32_t POWERS_OF_10[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+
+// Format float to buffer without using %f (avoids _dtoa_r ~3.4KB)
+static size_t format_float_to_buf(char *buf, size_t buf_size, float value, int8_t accuracy_decimals) {
+  if (buf_size == 0)
+    return 0;
+
+  // Handle sign
+  const char *sign = "";
+  if (value < 0) {
+    sign = "-";
+    value = -value;
+  }
+
+  // Clamp accuracy_decimals to supported range
+  if (accuracy_decimals > 9)
+    accuracy_decimals = 9;
+
+  int len;
+  if (accuracy_decimals == 0) {
+    // Integer only
+    len = snprintf(buf, buf_size, "%s%d", sign, static_cast<int>(value + 0.5f));
+  } else {
+    // Scale and round
+    uint32_t divisor = POWERS_OF_10[accuracy_decimals];
+    uint64_t scaled = static_cast<uint64_t>(value * divisor + 0.5f);
+    uint32_t integer_part = scaled / divisor;
+    uint32_t decimal_part = scaled % divisor;
+    // %0*d pads with leading zeros to match accuracy_decimals
+    len = snprintf(buf, buf_size, "%s%u.%0*u", sign, integer_part, accuracy_decimals, decimal_part);
+  }
+
+  if (len < 0)
+    return 0;
+  return static_cast<size_t>(len) >= buf_size ? buf_size - 1 : static_cast<size_t>(len);
+}
+
 std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
   char buf[VALUE_ACCURACY_MAX_LEN];
   value_accuracy_to_buf(buf, value, accuracy_decimals);
@@ -486,12 +524,7 @@ std::string value_accuracy_to_string(float value, int8_t accuracy_decimals) {
 
 size_t value_accuracy_to_buf(std::span<char, VALUE_ACCURACY_MAX_LEN> buf, float value, int8_t accuracy_decimals) {
   normalize_accuracy_decimals(value, accuracy_decimals);
-  // snprintf returns chars that would be written (excluding null), or negative on error
-  int len = snprintf(buf.data(), buf.size(), "%.*f", accuracy_decimals, value);
-  if (len < 0)
-    return 0;  // encoding error
-  // On truncation, snprintf returns would-be length; actual written is buf.size() - 1
-  return static_cast<size_t>(len) >= buf.size() ? buf.size() - 1 : static_cast<size_t>(len);
+  return format_float_to_buf(buf.data(), buf.size(), value, accuracy_decimals);
 }
 
 size_t value_accuracy_with_uom_to_buf(std::span<char, VALUE_ACCURACY_MAX_LEN> buf, float value,
@@ -500,25 +533,33 @@ size_t value_accuracy_with_uom_to_buf(std::span<char, VALUE_ACCURACY_MAX_LEN> bu
     return value_accuracy_to_buf(buf, value, accuracy_decimals);
   }
   normalize_accuracy_decimals(value, accuracy_decimals);
-  // snprintf returns chars that would be written (excluding null), or negative on error
-  int len = snprintf(buf.data(), buf.size(), "%.*f %s", accuracy_decimals, value, unit_of_measurement.c_str());
-  if (len < 0)
-    return 0;  // encoding error
-  // On truncation, snprintf returns would-be length; actual written is buf.size() - 1
-  return static_cast<size_t>(len) >= buf.size() ? buf.size() - 1 : static_cast<size_t>(len);
+  // Format value first, then append unit
+  size_t len = format_float_to_buf(buf.data(), buf.size(), value, accuracy_decimals);
+  if (len + 1 < buf.size()) {
+    // Append space and unit
+    int uom_len = snprintf(buf.data() + len, buf.size() - len, " %s", unit_of_measurement.c_str());
+    if (uom_len > 0) {
+      len += static_cast<size_t>(uom_len);
+      if (len >= buf.size())
+        len = buf.size() - 1;
+    }
+  }
+  return len;
 }
 
 int8_t step_to_accuracy_decimals(float step) {
-  // use printf %g to find number of digits based on temperature step
-  char buf[32];
-  snprintf(buf, sizeof buf, "%.5g", step);
-
-  std::string str{buf};
-  size_t dot_pos = str.find('.');
-  if (dot_pos == std::string::npos)
+  // Determine decimal places needed without using %g (avoids _dtoa_r)
+  if (step >= 1.0f)
     return 0;
 
-  return str.length() - dot_pos - 1;
+  // Multiply by powers of 10 until we get an integer
+  for (int8_t decimals = 1; decimals <= 5; decimals++) {
+    float scaled = step * POWERS_OF_10[decimals];
+    // Check if scaled is close to an integer (within floating point tolerance)
+    if (std::abs(scaled - std::round(scaled)) < 0.001f)
+      return decimals;
+  }
+  return 5;  // Max 5 decimal places
 }
 
 // Store BASE64 characters as array - automatically placed in flash/ROM on embedded platforms
