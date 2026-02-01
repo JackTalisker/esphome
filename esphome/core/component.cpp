@@ -450,9 +450,12 @@ void log_update_interval(const char *tag, PollingComponent *component) {
   if (update_interval == SCHEDULER_DONT_RUN) {
     ESP_LOGCONFIG(tag, "  Update Interval: never");
   } else if (update_interval < 100) {
-    ESP_LOGCONFIG(tag, "  Update Interval: %.3fs", update_interval / 1000.0f);
+    // Use integer math to avoid pulling in _dtoa_r (~3.4KB)
+    // update_interval is in ms, display as X.YYYs
+    ESP_LOGCONFIG(tag, "  Update Interval: %d.%03ds", update_interval / 1000, update_interval % 1000);
   } else {
-    ESP_LOGCONFIG(tag, "  Update Interval: %.1fs", update_interval / 1000.0f);
+    // Display as X.Ys (1 decimal place)
+    ESP_LOGCONFIG(tag, "  Update Interval: %d.%ds", update_interval / 1000, (update_interval % 1000) / 100);
   }
 }
 float Component::get_actual_setup_priority() const {
