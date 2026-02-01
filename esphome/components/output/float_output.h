@@ -9,10 +9,12 @@ namespace output {
 #define LOG_FLOAT_OUTPUT(this) \
   LOG_BINARY_OUTPUT(this) \
   if (this->max_power_ != 1.0f) { \
-    ESP_LOGCONFIG(TAG, "  Max Power: %.1f%%", this->max_power_ * 100.0f); \
+    int _mp = static_cast<int>(this->max_power_ * 1000.0f); \
+    ESP_LOGCONFIG(TAG, "  Max Power: %s%d.%d%%", _mp < 0 ? "-" : "", std::abs(_mp / 10), std::abs(_mp % 10)); \
   } \
   if (this->min_power_ != 0.0f) { \
-    ESP_LOGCONFIG(TAG, "  Min Power: %.1f%%", this->min_power_ * 100.0f); \
+    int _mp = static_cast<int>(this->min_power_ * 1000.0f); \
+    ESP_LOGCONFIG(TAG, "  Min Power: %s%d.%d%%", _mp < 0 ? "-" : "", std::abs(_mp / 10), std::abs(_mp % 10)); \
   }
 
 /** Base class for all output components that can output a variable level, like PWM.
