@@ -79,16 +79,19 @@ async def to_code(config):
             var.get_close_trigger(), [], config[CONF_CLOSE_ACTION]
         )
     if CONF_STOP_ACTION in config:
+        cg.add_define("USE_TEMPLATE_COVER_STOP_TRIGGER")
         await automation.build_automation(
             var.get_stop_trigger(), [], config[CONF_STOP_ACTION]
         )
         cg.add(var.set_has_stop(True))
     if CONF_TOGGLE_ACTION in config:
+        cg.add_define("USE_TEMPLATE_COVER_TOGGLE_TRIGGER")
         await automation.build_automation(
             var.get_toggle_trigger(), [], config[CONF_TOGGLE_ACTION]
         )
         cg.add(var.set_has_toggle(True))
     if CONF_TILT_ACTION in config:
+        cg.add_define("USE_TEMPLATE_COVER_TILT_TRIGGER")
         await automation.build_automation(
             var.get_tilt_trigger(), [(float, "tilt")], config[CONF_TILT_ACTION]
         )
@@ -99,6 +102,7 @@ async def to_code(config):
         )
         cg.add(var.set_tilt_lambda(tilt_template_))
     if CONF_POSITION_ACTION in config:
+        cg.add_define("USE_TEMPLATE_COVER_POSITION_TRIGGER")
         await automation.build_automation(
             var.get_position_trigger(), [(float, "pos")], config[CONF_POSITION_ACTION]
         )

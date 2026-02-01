@@ -15,9 +15,15 @@ class TemplateLock final : public lock::Lock, public Component {
   void dump_config() override;
 
   template<typename F> void set_state_lambda(F &&f) { this->f_.set(std::forward<F>(f)); }
+#ifdef USE_TEMPLATE_LOCK_LOCK_TRIGGER
   Trigger<> *get_lock_trigger() const;
+#endif
+#ifdef USE_TEMPLATE_LOCK_UNLOCK_TRIGGER
   Trigger<> *get_unlock_trigger() const;
+#endif
+#ifdef USE_TEMPLATE_LOCK_OPEN_TRIGGER
   Trigger<> *get_open_trigger() const;
+#endif
   void set_optimistic(bool optimistic);
   void loop() override;
 
@@ -29,10 +35,19 @@ class TemplateLock final : public lock::Lock, public Component {
 
   TemplateLambda<lock::LockState> f_;
   bool optimistic_{false};
+#ifdef USE_TEMPLATE_LOCK_LOCK_TRIGGER
   Trigger<> *lock_trigger_;
+#endif
+#ifdef USE_TEMPLATE_LOCK_UNLOCK_TRIGGER
   Trigger<> *unlock_trigger_;
+#endif
+#ifdef USE_TEMPLATE_LOCK_OPEN_TRIGGER
   Trigger<> *open_trigger_;
+#endif
+#if defined(USE_TEMPLATE_LOCK_LOCK_TRIGGER) || defined(USE_TEMPLATE_LOCK_UNLOCK_TRIGGER) || \
+    defined(USE_TEMPLATE_LOCK_OPEN_TRIGGER)
   Trigger<> *prev_trigger_{nullptr};
+#endif
 };
 
 }  // namespace esphome::template_

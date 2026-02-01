@@ -17,7 +17,9 @@ class TemplateNumber final : public number::Number, public PollingComponent {
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
+#ifdef USE_TEMPLATE_NUMBER_SET_TRIGGER
   Trigger<float> *get_set_trigger() const { return set_trigger_; }
+#endif
   void set_optimistic(bool optimistic) { optimistic_ = optimistic; }
   void set_initial_value(float initial_value) { initial_value_ = initial_value; }
   void set_restore_value(bool restore_value) { this->restore_value_ = restore_value; }
@@ -27,7 +29,9 @@ class TemplateNumber final : public number::Number, public PollingComponent {
   bool optimistic_{false};
   float initial_value_{NAN};
   bool restore_value_{false};
+#ifdef USE_TEMPLATE_NUMBER_SET_TRIGGER
   Trigger<float> *set_trigger_ = new Trigger<float>();
+#endif
   TemplateLambda<float> f_;
 
   ESPPreferenceObject pref_;

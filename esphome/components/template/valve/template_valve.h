@@ -20,14 +20,26 @@ class TemplateValve final : public valve::Valve, public Component {
   template<typename F> void set_state_lambda(F &&f) { this->state_f_.set(std::forward<F>(f)); }
   Trigger<> *get_open_trigger() const;
   Trigger<> *get_close_trigger() const;
+#ifdef USE_TEMPLATE_VALVE_STOP_TRIGGER
   Trigger<> *get_stop_trigger() const;
+#endif
+#ifdef USE_TEMPLATE_VALVE_TOGGLE_TRIGGER
   Trigger<> *get_toggle_trigger() const;
+#endif
+#ifdef USE_TEMPLATE_VALVE_POSITION_TRIGGER
   Trigger<float> *get_position_trigger() const;
+#endif
   void set_optimistic(bool optimistic);
   void set_assumed_state(bool assumed_state);
+#ifdef USE_TEMPLATE_VALVE_STOP_TRIGGER
   void set_has_stop(bool has_stop);
+#endif
+#ifdef USE_TEMPLATE_VALVE_POSITION_TRIGGER
   void set_has_position(bool has_position);
+#endif
+#ifdef USE_TEMPLATE_VALVE_TOGGLE_TRIGGER
   void set_has_toggle(bool has_toggle);
+#endif
   void set_restore_mode(TemplateValveRestoreMode restore_mode) { restore_mode_ = restore_mode; }
 
   void setup() override;
@@ -41,19 +53,32 @@ class TemplateValve final : public valve::Valve, public Component {
   valve::ValveTraits get_traits() override;
   void stop_prev_trigger_();
 
+  // Ordered to minimize padding on 32-bit: 4-byte members first, then smaller
   TemplateValveRestoreMode restore_mode_{VALVE_NO_RESTORE};
   TemplateLambda<float> state_f_;
-  bool assumed_state_{false};
-  bool optimistic_{false};
   Trigger<> *open_trigger_;
   Trigger<> *close_trigger_;
-  bool has_stop_{false};
-  bool has_toggle_{false};
-  Trigger<> *stop_trigger_;
-  Trigger<> *toggle_trigger_;
   Trigger<> *prev_command_trigger_{nullptr};
+#ifdef USE_TEMPLATE_VALVE_STOP_TRIGGER
+  Trigger<> *stop_trigger_;
+#endif
+#ifdef USE_TEMPLATE_VALVE_TOGGLE_TRIGGER
+  Trigger<> *toggle_trigger_;
+#endif
+#ifdef USE_TEMPLATE_VALVE_POSITION_TRIGGER
   Trigger<float> *position_trigger_;
+#endif
+  bool assumed_state_{false};
+  bool optimistic_{false};
+#ifdef USE_TEMPLATE_VALVE_STOP_TRIGGER
+  bool has_stop_{false};
+#endif
+#ifdef USE_TEMPLATE_VALVE_TOGGLE_TRIGGER
+  bool has_toggle_{false};
+#endif
+#ifdef USE_TEMPLATE_VALVE_POSITION_TRIGGER
   bool has_position_{false};
+#endif
 };
 
 }  // namespace esphome::template_

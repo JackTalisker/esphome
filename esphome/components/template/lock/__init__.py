@@ -64,14 +64,17 @@ async def to_code(config):
         )
         cg.add(var.set_state_lambda(template_))
     if CONF_UNLOCK_ACTION in config:
+        cg.add_define("USE_TEMPLATE_LOCK_UNLOCK_TRIGGER")
         await automation.build_automation(
             var.get_unlock_trigger(), [], config[CONF_UNLOCK_ACTION]
         )
     if CONF_LOCK_ACTION in config:
+        cg.add_define("USE_TEMPLATE_LOCK_LOCK_TRIGGER")
         await automation.build_automation(
             var.get_lock_trigger(), [], config[CONF_LOCK_ACTION]
         )
     if CONF_OPEN_ACTION in config:
+        cg.add_define("USE_TEMPLATE_LOCK_OPEN_TRIGGER")
         await automation.build_automation(
             var.get_open_trigger(), [], config[CONF_OPEN_ACTION]
         )

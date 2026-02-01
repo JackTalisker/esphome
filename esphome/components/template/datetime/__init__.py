@@ -141,6 +141,12 @@ async def to_code(config):
                 cg.add(var.set_initial_value(datetime_struct))
 
     if CONF_SET_ACTION in config:
+        if config[CONF_TYPE] == "DATE":
+            cg.add_define("USE_TEMPLATE_DATE_SET_TRIGGER")
+        elif config[CONF_TYPE] == "TIME":
+            cg.add_define("USE_TEMPLATE_TIME_SET_TRIGGER")
+        elif config[CONF_TYPE] == "DATETIME":
+            cg.add_define("USE_TEMPLATE_DATETIME_SET_TRIGGER")
         await automation.build_automation(
             var.get_set_trigger(),
             [(cg.ESPTime, "x")],

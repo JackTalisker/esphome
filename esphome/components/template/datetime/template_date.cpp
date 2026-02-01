@@ -62,7 +62,9 @@ void TemplateDate::control(const datetime::DateCall &call) {
   if (has_day)
     value.day_of_month = *call.get_day();
 
+#ifdef USE_TEMPLATE_DATE_SET_TRIGGER
   this->set_trigger_->trigger(value);
+#endif
 
   if (this->optimistic_) {
     if (has_year)

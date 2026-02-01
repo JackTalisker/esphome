@@ -60,10 +60,12 @@ async def to_code(config):
         )
         cg.add(var.set_state_lambda(template_))
     if CONF_TURN_OFF_ACTION in config:
+        cg.add_define("USE_TEMPLATE_SWITCH_TURN_OFF_TRIGGER")
         await automation.build_automation(
             var.get_turn_off_trigger(), [], config[CONF_TURN_OFF_ACTION]
         )
     if CONF_TURN_ON_ACTION in config:
+        cg.add_define("USE_TEMPLATE_SWITCH_TURN_ON_TRIGGER")
         await automation.build_automation(
             var.get_turn_on_trigger(), [], config[CONF_TURN_ON_ACTION]
         )

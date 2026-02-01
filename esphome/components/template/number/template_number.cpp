@@ -36,7 +36,9 @@ void TemplateNumber::update() {
 }
 
 void TemplateNumber::control(float value) {
+#ifdef USE_TEMPLATE_NUMBER_SET_TRIGGER
   this->set_trigger_->trigger(value);
+#endif
 
   if (this->optimistic_)
     this->publish_state(value);

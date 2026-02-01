@@ -28,7 +28,9 @@ class TemplateWaterHeater : public Component, public water_heater::WaterHeater {
     this->supported_modes_ = modes;
   }
 
+#ifdef USE_TEMPLATE_WATER_HEATER_SET_TRIGGER
   Trigger<> *get_set_trigger() const { return this->set_trigger_; }
+#endif
 
   void setup() override;
   void loop() override;
@@ -42,7 +44,9 @@ class TemplateWaterHeater : public Component, public water_heater::WaterHeater {
   water_heater::WaterHeaterTraits traits() override;
 
   // Ordered to minimize padding on 32-bit: 4-byte members first, then smaller
+#ifdef USE_TEMPLATE_WATER_HEATER_SET_TRIGGER
   Trigger<> *set_trigger_;
+#endif
   TemplateLambda<float> current_temperature_f_;
   TemplateLambda<water_heater::WaterHeaterMode> mode_f_;
   TemplateWaterHeaterRestoreMode restore_mode_{WATER_HEATER_NO_RESTORE};

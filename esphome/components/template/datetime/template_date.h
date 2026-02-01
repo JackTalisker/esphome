@@ -22,7 +22,9 @@ class TemplateDate final : public datetime::DateEntity, public PollingComponent 
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
+#ifdef USE_TEMPLATE_DATE_SET_TRIGGER
   Trigger<ESPTime> *get_set_trigger() const { return this->set_trigger_; }
+#endif
   void set_optimistic(bool optimistic) { this->optimistic_ = optimistic; }
 
   void set_initial_value(ESPTime initial_value) { this->initial_value_ = initial_value; }
@@ -34,7 +36,9 @@ class TemplateDate final : public datetime::DateEntity, public PollingComponent 
   bool optimistic_{false};
   ESPTime initial_value_{};
   bool restore_value_{false};
+#ifdef USE_TEMPLATE_DATE_SET_TRIGGER
   Trigger<ESPTime> *set_trigger_ = new Trigger<ESPTime>();
+#endif
   TemplateLambda<ESPTime> f_;
 
   ESPPreferenceObject pref_;

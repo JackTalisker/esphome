@@ -64,6 +64,7 @@ async def to_code(config: ConfigType) -> None:
     cg.add(var.set_optimistic(config[CONF_OPTIMISTIC]))
 
     if CONF_SET_ACTION in config:
+        cg.add_define("USE_TEMPLATE_WATER_HEATER_SET_TRIGGER")
         await automation.build_automation(
             var.get_set_trigger(), [], config[CONF_SET_ACTION]
         )

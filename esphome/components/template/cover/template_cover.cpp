@@ -9,11 +9,25 @@ static const char *const TAG = "template.cover";
 
 TemplateCover::TemplateCover()
     : open_trigger_(new Trigger<>()),
-      close_trigger_(new Trigger<>),
-      stop_trigger_(new Trigger<>()),
-      toggle_trigger_(new Trigger<>()),
-      position_trigger_(new Trigger<float>()),
-      tilt_trigger_(new Trigger<float>()) {}
+      close_trigger_(new Trigger<>())
+#ifdef USE_TEMPLATE_COVER_STOP_TRIGGER
+      ,
+      stop_trigger_(new Trigger<>())
+#endif
+#ifdef USE_TEMPLATE_COVER_TOGGLE_TRIGGER
+      ,
+      toggle_trigger_(new Trigger<>())
+#endif
+#ifdef USE_TEMPLATE_COVER_POSITION_TRIGGER
+      ,
+      position_trigger_(new Trigger<float>())
+#endif
+#ifdef USE_TEMPLATE_COVER_TILT_TRIGGER
+      ,
+      tilt_trigger_(new Trigger<float>())
+#endif
+{
+}
 void TemplateCover::setup() {
   switch (this->restore_mode_) {
     case COVER_NO_RESTORE:
@@ -64,22 +78,30 @@ void TemplateCover::set_assumed_state(bool assumed_state) { this->assumed_state_
 float TemplateCover::get_setup_priority() const { return setup_priority::HARDWARE; }
 Trigger<> *TemplateCover::get_open_trigger() const { return this->open_trigger_; }
 Trigger<> *TemplateCover::get_close_trigger() const { return this->close_trigger_; }
+#ifdef USE_TEMPLATE_COVER_STOP_TRIGGER
 Trigger<> *TemplateCover::get_stop_trigger() const { return this->stop_trigger_; }
+#endif
+#ifdef USE_TEMPLATE_COVER_TOGGLE_TRIGGER
 Trigger<> *TemplateCover::get_toggle_trigger() const { return this->toggle_trigger_; }
+#endif
 void TemplateCover::dump_config() { LOG_COVER("", "Template Cover", this); }
 void TemplateCover::control(const CoverCall &call) {
+#ifdef USE_TEMPLATE_COVER_STOP_TRIGGER
   if (call.get_stop()) {
     this->stop_prev_trigger_();
     this->stop_trigger_->trigger();
     this->prev_command_trigger_ = this->stop_trigger_;
     this->publish_state();
   }
+#endif
+#ifdef USE_TEMPLATE_COVER_TOGGLE_TRIGGER
   if (call.get_toggle().has_value()) {
     this->stop_prev_trigger_();
     this->toggle_trigger_->trigger();
     this->prev_command_trigger_ = this->toggle_trigger_;
     this->publish_state();
   }
+#endif
   if (call.get_position().has_value()) {
     auto pos = *call.get_position();
     this->stop_prev_trigger_();
@@ -90,15 +112,19 @@ void TemplateCover::control(const CoverCall &call) {
     } else if (pos == COVER_CLOSED) {
       this->close_trigger_->trigger();
       this->prev_command_trigger_ = this->close_trigger_;
-    } else {
+    }
+#ifdef USE_TEMPLATE_COVER_POSITION_TRIGGER
+    else {
       this->position_trigger_->trigger(pos);
     }
+#endif
 
     if (this->optimistic_) {
       this->position = pos;
     }
   }
 
+#ifdef USE_TEMPLATE_COVER_TILT_TRIGGER
   if (call.get_tilt().has_value()) {
     auto tilt = *call.get_tilt();
     this->tilt_trigger_->trigger(tilt);
@@ -107,24 +133,53 @@ void TemplateCover::control(const CoverCall &call) {
       this->tilt = tilt;
     }
   }
+#endif
 
   this->publish_state();
 }
 CoverTraits TemplateCover::get_traits() {
   auto traits = CoverTraits();
   traits.set_is_assumed_state(this->assumed_state_);
+#ifdef USE_TEMPLATE_COVER_STOP_TRIGGER
   traits.set_supports_stop(this->has_stop_);
+#else
+  traits.set_supports_stop(false);
+#endif
+#ifdef USE_TEMPLATE_COVER_TOGGLE_TRIGGER
   traits.set_supports_toggle(this->has_toggle_);
+#else
+  traits.set_supports_toggle(false);
+#endif
+#ifdef USE_TEMPLATE_COVER_POSITION_TRIGGER
   traits.set_supports_position(this->has_position_);
+#else
+  traits.set_supports_position(false);
+#endif
+#ifdef USE_TEMPLATE_COVER_TILT_TRIGGER
   traits.set_supports_tilt(this->has_tilt_);
+#else
+  traits.set_supports_tilt(false);
+#endif
   return traits;
 }
+#ifdef USE_TEMPLATE_COVER_POSITION_TRIGGER
 Trigger<float> *TemplateCover::get_position_trigger() const { return this->position_trigger_; }
+#endif
+#ifdef USE_TEMPLATE_COVER_TILT_TRIGGER
 Trigger<float> *TemplateCover::get_tilt_trigger() const { return this->tilt_trigger_; }
+#endif
+#ifdef USE_TEMPLATE_COVER_STOP_TRIGGER
 void TemplateCover::set_has_stop(bool has_stop) { this->has_stop_ = has_stop; }
+#endif
+#ifdef USE_TEMPLATE_COVER_TOGGLE_TRIGGER
 void TemplateCover::set_has_toggle(bool has_toggle) { this->has_toggle_ = has_toggle; }
+#endif
+#ifdef USE_TEMPLATE_COVER_POSITION_TRIGGER
 void TemplateCover::set_has_position(bool has_position) { this->has_position_ = has_position; }
+#endif
+#ifdef USE_TEMPLATE_COVER_TILT_TRIGGER
 void TemplateCover::set_has_tilt(bool has_tilt) { this->has_tilt_ = has_tilt; }
+#endif
 void TemplateCover::stop_prev_trigger_() {
   if (this->prev_command_trigger_ != nullptr) {
     this->prev_command_trigger_->stop_action();

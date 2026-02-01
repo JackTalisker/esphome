@@ -78,16 +78,19 @@ async def to_code(config):
             var.get_close_trigger(), [], close_action_config
         )
     if stop_action_config := config.get(CONF_STOP_ACTION):
+        cg.add_define("USE_TEMPLATE_VALVE_STOP_TRIGGER")
         await automation.build_automation(
             var.get_stop_trigger(), [], stop_action_config
         )
         cg.add(var.set_has_stop(True))
     if toggle_action_config := config.get(CONF_TOGGLE_ACTION):
+        cg.add_define("USE_TEMPLATE_VALVE_TOGGLE_TRIGGER")
         await automation.build_automation(
             var.get_toggle_trigger(), [], toggle_action_config
         )
         cg.add(var.set_has_toggle(True))
     if position_action_config := config.get(CONF_POSITION_ACTION):
+        cg.add_define("USE_TEMPLATE_VALVE_POSITION_TRIGGER")
         await automation.build_automation(
             var.get_position_trigger(), [(float, "pos")], position_action_config
         )

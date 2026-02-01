@@ -80,7 +80,9 @@ void TemplateDateTime::control(const datetime::DateTimeCall &call) {
   if (has_second)
     value.second = *call.get_second();
 
+#ifdef USE_TEMPLATE_DATETIME_SET_TRIGGER
   this->set_trigger_->trigger(value);
+#endif
 
   if (this->optimistic_) {
     if (has_year)

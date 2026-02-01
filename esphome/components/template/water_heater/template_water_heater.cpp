@@ -5,7 +5,12 @@ namespace esphome::template_ {
 
 static const char *const TAG = "template.water_heater";
 
-TemplateWaterHeater::TemplateWaterHeater() : set_trigger_(new Trigger<>()) {}
+TemplateWaterHeater::TemplateWaterHeater()
+#ifdef USE_TEMPLATE_WATER_HEATER_SET_TRIGGER
+    : set_trigger_(new Trigger<>())
+#endif
+{
+}
 
 void TemplateWaterHeater::setup() {
   if (this->restore_mode_ == TemplateWaterHeaterRestoreMode::WATER_HEATER_RESTORE ||
@@ -78,7 +83,9 @@ void TemplateWaterHeater::control(const water_heater::WaterHeaterCall &call) {
     }
   }
 
+#ifdef USE_TEMPLATE_WATER_HEATER_SET_TRIGGER
   this->set_trigger_->trigger();
+#endif
 
   if (this->optimistic_) {
     this->publish_state();

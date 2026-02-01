@@ -68,7 +68,9 @@ class TemplateText final : public text::Text, public PollingComponent {
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
+#ifdef USE_TEMPLATE_TEXT_SET_TRIGGER
   Trigger<std::string> *get_set_trigger() const { return this->set_trigger_; }
+#endif
   void set_optimistic(bool optimistic) { this->optimistic_ = optimistic; }
   void set_initial_value(const char *initial_value) { this->initial_value_ = initial_value; }
   /// Prevent accidental use of std::string which would dangle
@@ -79,7 +81,9 @@ class TemplateText final : public text::Text, public PollingComponent {
   void control(const std::string &value) override;
   bool optimistic_ = false;
   const char *initial_value_{nullptr};
+#ifdef USE_TEMPLATE_TEXT_SET_TRIGGER
   Trigger<std::string> *set_trigger_ = new Trigger<std::string>();
+#endif
   TemplateLambda<std::string> f_{};
 
   TemplateTextSaverBase *pref_ = nullptr;
