@@ -1917,4 +1917,45 @@ class CompactString {
 
 static_assert(sizeof(CompactString) == 20, "CompactString must be exactly 20 bytes");
 
+/// @name Float formatting helpers (avoid _dtoa_r bloat)
+/// These helpers format floats as fixed-point integers for logging without pulling in
+/// the ~3.4KB _dtoa_r library. They handle negative values correctly including -0.x cases.
+/// Usage: ESP_LOGD(TAG, "Temp: %s%d.%d°C", DECIMAL_1(temp));
+/// Usage: ESP_LOGD(TAG, "Value: %s%d.%02d", DECIMAL_2(value));
+///@{
+
+/// Helper for formatting floats with 1 decimal place
+struct Decimal1 {
+  const char *sign;
+  int integer;
+  int decimal;
+  explicit Decimal1(float value) {
+    int scaled = static_cast<int>(value * 10.0f);
+    sign = scaled < 0 ? "-" : "";
+    integer = std::abs(scaled / 10);
+    decimal = std::abs(scaled % 10);
+  }
+};
+
+/// Helper for formatting floats with 2 decimal places
+struct Decimal2 {
+  const char *sign;
+  int integer;
+  int decimal;
+  explicit Decimal2(float value) {
+    int scaled = static_cast<int>(value * 100.0f);
+    sign = scaled < 0 ? "-" : "";
+    integer = std::abs(scaled / 100);
+    decimal = std::abs(scaled % 100);
+  }
+};
+
+/// Format float with 1 decimal place - expands to 3 args for %s%d.%d
+#define DECIMAL_1(v) esphome::Decimal1(v).sign, esphome::Decimal1(v).integer, esphome::Decimal1(v).decimal
+
+/// Format float with 2 decimal places - expands to 3 args for %s%d.%02d
+#define DECIMAL_2(v) esphome::Decimal2(v).sign, esphome::Decimal2(v).integer, esphome::Decimal2(v).decimal
+
+///@}
+
 }  // namespace esphome

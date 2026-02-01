@@ -13,8 +13,8 @@ void NumberCall::log_perform_warning_(const LogString *message) {
 
 void NumberCall::log_perform_warning_value_range_(const LogString *comparison, const LogString *limit_type, float val,
                                                   float limit) {
-  ESP_LOGW(TAG, "'%s': %f %s %s %f", this->parent_->get_name().c_str(), val, LOG_STR_ARG(comparison),
-           LOG_STR_ARG(limit_type), limit);
+  ESP_LOGW(TAG, "'%s': %s%d.%02d %s %s %s%d.%02d", this->parent_->get_name().c_str(), DECIMAL_2(val),
+           LOG_STR_ARG(comparison), LOG_STR_ARG(limit_type), DECIMAL_2(limit));
 }
 
 NumberCall &NumberCall::set_value(float value) { return this->with_operation(NUMBER_OP_SET).with_value(value); }
@@ -120,7 +120,7 @@ void NumberCall::perform() {
     return;
   }
 
-  ESP_LOGD(TAG, "  New value: %f", target_value);
+  ESP_LOGD(TAG, "  New value: %s%d.%02d", DECIMAL_2(target_value));
   this->parent_->control(target_value);
 }
 

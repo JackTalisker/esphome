@@ -13,7 +13,8 @@ static const char *const TAG = "light";
 static void clamp_and_log_if_invalid(const char *name, float &value, const LogString *param_name, float min = 0.0f,
                                      float max = 1.0f) {
   if (value < min || value > max) {
-    ESP_LOGW(TAG, "'%s': %s value %.2f is out of range [%.1f - %.1f]", name, LOG_STR_ARG(param_name), value, min, max);
+    ESP_LOGW(TAG, "'%s': %s value %s%d.%02d is out of range [%s%d.%02d - %s%d.%02d]", name, LOG_STR_ARG(param_name),
+             DECIMAL_2(value), DECIMAL_2(min), DECIMAL_2(max));
     value = clamp(value, min, max);
   }
 }
@@ -76,7 +77,7 @@ static const LogString *color_mode_to_human(ColorMode color_mode) {
 // Helper to log percentage values
 #if ESPHOME_LOG_LEVEL >= ESPHOME_LOG_LEVEL_DEBUG
 static void log_percent(const LogString *param, float value) {
-  ESP_LOGD(TAG, "  %s: %.0f%%", LOG_STR_ARG(param), value * 100.0f);
+  ESP_LOGD(TAG, "  %s: %d%%", LOG_STR_ARG(param), (int) (value * 100.0f));
 }
 #else
 #define log_percent(param, value)
@@ -112,34 +113,34 @@ void LightCall::perform() {
       log_percent(LOG_STR("Color brightness"), v.get_color_brightness());
     }
     if (this->has_red() || this->has_green() || this->has_blue()) {
-      ESP_LOGD(TAG, "  Red: %.0f%%, Green: %.0f%%, Blue: %.0f%%", v.get_red() * 100.0f, v.get_green() * 100.0f,
-               v.get_blue() * 100.0f);
+      ESP_LOGD(TAG, "  Red: %d%%, Green: %d%%, Blue: %d%%", (int) (v.get_red() * 100.0f),
+               (int) (v.get_green() * 100.0f), (int) (v.get_blue() * 100.0f));
     }
 
     if (this->has_white()) {
       log_percent(LOG_STR("White"), v.get_white());
     }
     if (this->has_color_temperature()) {
-      ESP_LOGD(TAG, "  Color temperature: %.1f mireds", v.get_color_temperature());
+      ESP_LOGD(TAG, "  Color temperature: %d mireds", (int) v.get_color_temperature());
     }
 
     if (this->has_cold_white() || this->has_warm_white()) {
-      ESP_LOGD(TAG, "  Cold white: %.0f%%, warm white: %.0f%%", v.get_cold_white() * 100.0f,
-               v.get_warm_white() * 100.0f);
+      ESP_LOGD(TAG, "  Cold white: %d%%, warm white: %d%%", (int) (v.get_cold_white() * 100.0f),
+               (int) (v.get_warm_white() * 100.0f));
     }
   }
 
   if (this->has_flash_()) {
     // FLASH
     if (publish) {
-      ESP_LOGD(TAG, "  Flash length: %.1fs", this->flash_length_ / 1e3f);
+      ESP_LOGD(TAG, "  Flash length: %u ms", this->flash_length_);
     }
 
     this->parent_->start_flash_(v, this->flash_length_, publish);
   } else if (this->has_transition_()) {
     // TRANSITION
     if (publish) {
-      ESP_LOGD(TAG, "  Transition length: %.1fs", this->transition_length_ / 1e3f);
+      ESP_LOGD(TAG, "  Transition length: %u ms", this->transition_length_);
     }
 
     // Special case: Transition and effect can be set when turning off

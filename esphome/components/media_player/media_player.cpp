@@ -91,7 +91,7 @@ void MediaPlayerCall::perform() {
     ESP_LOGD(TAG, "  Media URL: %s", this->media_url_.value().c_str());
   }
   if (this->volume_.has_value()) {
-    ESP_LOGD(TAG, "  Volume: %.2f", this->volume_.value());
+    ESP_LOGD(TAG, "  Volume: %d%%", (int) (this->volume_.value() * 100.0f));
   }
   if (this->announcement_.has_value()) {
     ESP_LOGD(TAG, " Announcement: %s", this->announcement_.value() ? "yes" : "no");

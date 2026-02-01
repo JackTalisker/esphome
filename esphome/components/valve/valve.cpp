@@ -76,7 +76,7 @@ void ValveCall::perform() {
   }
   if (this->position_.has_value()) {
     if (traits.get_supports_position()) {
-      ESP_LOGD(TAG, "  Position: %.0f%%", *this->position_ * 100.0f);
+      ESP_LOGD(TAG, "  Position: %d%%", (int) (*this->position_ * 100.0f));
     } else {
       ESP_LOGD(TAG, "  Command: %s", LOG_STR_ARG(valve_command_to_str(*this->position_)));
     }
@@ -132,7 +132,7 @@ void Valve::publish_state(bool save) {
   ESP_LOGD(TAG, "'%s' >>", this->name_.c_str());
   auto traits = this->get_traits();
   if (traits.get_supports_position()) {
-    ESP_LOGD(TAG, "  Position: %.0f%%", this->position * 100.0f);
+    ESP_LOGD(TAG, "  Position: %d%%", (int) (this->position * 100.0f));
   } else {
     if (this->position == VALVE_OPEN) {
       ESP_LOGD(TAG, "  State: OPEN");

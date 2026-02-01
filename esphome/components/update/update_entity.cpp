@@ -30,7 +30,7 @@ void UpdateEntity::publish_state() {
   }
 
   if (this->update_info_.has_progress) {
-    ESP_LOGD(TAG, "  Progress: %.0f%%", this->update_info_.progress);
+    ESP_LOGD(TAG, "  Progress: %d%%", (int) this->update_info_.progress);
   }
 
   this->set_has_state(true);
